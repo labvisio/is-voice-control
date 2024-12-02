@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microfone Contínuo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <style>
+        #mic-button {
+            width: 200px;
+            height: 80px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            outline: none;
+        }
+        #mic-button.active {
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: center; margin-top: 100px;">
+        <button id="mic-button">Ativar Microfone</button>
+        <p id="feedback"></p>
+        <p id="transcription"></p>
+    </div>
+
+    <script>
+        const socket = io();
+        const button = document.getElementById('mic-button');
+        const feedback = document.getElementById('feedback');
+        const transcription = document.getElementById('transcription');
+
+        let isActive = false;
+
+        button.addEventListener('click', function() {
+            if (!isActive) {
+                button.textContent = "Desativar Microfone";
+                button.classList.add('active');
+                socket.emit('start_recording');
+            } else {
+                button.textContent = "Ativar Microfone";
+                button.classList.remove('active');
+                socket.emit('stop_recording');
+            }
+            isActive = !isActive;
+        });
+
+        socket.on('feedback', function(data) {
+            feedback.textContent = data.message;
+        });
+
+        socket.on('transcription', function(data) {
+            transcription.textContent = ` ${data.text}`;
+        });
+    </script>
+
+</body>
+</html>
