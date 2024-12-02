@@ -1,30 +1,30 @@
 document.addEventListener('DOMContentLoaded', function() {
     const button = document.getElementById('mic-button');
     const transcriptionParagraph = document.getElementById('transcription');
+    const feedbackParagraph = document.getElementById('feedback');
 
     let isActive = false;
+
+    const socket = io();
 
     button.addEventListener('click', function() {
         if (!isActive) {
             button.textContent = "Desativar Microfone";
             button.classList.add('active');
-            startRecording();
+            socket.emit('start_recording');  
         } else {
             button.textContent = "Ativar Microfone";
             button.classList.remove('active');
+            socket.emit('stop_recording');  
         }
         isActive = !isActive;
     });
 
-    function startRecording() {
-        fetch('/record', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.transcription) {
-                    transcriptionParagraph.textContent = `Você disse: ${data.transcription}`;
-                } else if (data.error) {
-                    transcriptionParagraph.textContent = `Erro: ${data.error}`;
-                }
-            });
-    }
+    socket.on('feedback', function(data) {
+        feedbackParagraph.textContent = data.message;
+    });
+
+    socket.on('transcription', function(data) {
+        transcriptionParagraph.textContent = `Você disse: ${data.text}`;
+    });
 });
