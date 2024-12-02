@@ -2,7 +2,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import speech_recognition as sr
 
-class MyFlaskApp:
+class isVoiceControl:
     def __init__(self):
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = 'secret!'
@@ -39,5 +39,5 @@ class MyFlaskApp:
         self.socketio.run(self.app, debug=True)
 
 if __name__ == '__main__':
-    app = MyFlaskApp()
+    app = isVoiceControl()
     app.run()
