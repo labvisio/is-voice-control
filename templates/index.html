@@ -3,62 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microfone Contínuo</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <title>Controle de Áudio</title>
     <style>
         #mic-button {
-            width: 200px;
-            height: 80px;
-            background-color: red;
+            font-size: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 20px;
-            font-size: 20px;
             cursor: pointer;
-            outline: none;
         }
         #mic-button.active {
-            background-color: green;
+            background-color: #f44336; /* Cor para indicar que está ativo */
+        }
+        #status {
+            font-size: 18px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    <h1>Controle de Áudio</h1>
+    <button id="mic-button">Ativar Microfone</button>
+    <p id="feedback"></p>
+    <p id="transcription"></p>
 
-    <div style="text-align: center; margin-top: 100px;">
-        <button id="mic-button">Ativar Microfone</button>
-        <p id="feedback"></p>
-        <p id="transcription"></p>
-    </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script>
-        const socket = io();
-        const button = document.getElementById('mic-button');
-        const feedback = document.getElementById('feedback');
-        const transcription = document.getElementById('transcription');
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.getElementById('mic-button');
+            const transcriptionParagraph = document.getElementById('transcription');
+            const feedbackParagraph = document.getElementById('feedback');
 
-        let isActive = false;
+            let isActive = false;
 
-        button.addEventListener('click', function() {
-            if (!isActive) {
-                button.textContent = "Desativar Microfone";
-                button.classList.add('active');
-                socket.emit('start_recording');
-            } else {
+            const socket = io();
+
+            // O clique no botão só ativa a gravação, não pode desativar o microfone
+            button.addEventListener('click', function() {
+                if (!isActive) {
+                    button.textContent = "Desativar Microfone";
+                    button.classList.add('active');
+                    socket.emit('start_recording');  
+                }
+            });
+
+            socket.on('feedback', function(data) {
+                feedbackParagraph.textContent = data.message;
+            });
+
+            socket.on('transcription', function(data) {
+                transcriptionParagraph.textContent = `${data.text}`;
+            });
+
+            socket.on('reset_button', function(data) {
+                // Reseta o botão de volta ao estado inicial quando a operação for deixada
                 button.textContent = "Ativar Microfone";
                 button.classList.remove('active');
-                socket.emit('stop_recording');
-            }
-            isActive = !isActive;
-        });
-
-        socket.on('feedback', function(data) {
-            feedback.textContent = data.message;
-        });
-
-        socket.on('transcription', function(data) {
-            transcription.textContent = `Texto transcrito: ${data.text}`;
+                isActive = false;
+                feedbackParagraph.textContent = data.message;
+            });
         });
     </script>
-
 </body>
 </html>
