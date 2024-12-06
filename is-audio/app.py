@@ -1,17 +1,22 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
+from publisher import VoiceControl
 import speech_recognition as sr
 import pyttsx3
 import logging
+import os
+from is_wire.core import Channel
 
 from listener import Speaker_identification
 
 class isVoiceControl:
-    def __init__(self):
+    def __init__(self, broker: str):
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = 'secret!'
         self.socketio = SocketIO(self.app)
-        
+
+        self.channel = VoiceControl(broker)
+
         self.register_routes()
 
         logging.basicConfig(
@@ -29,7 +34,7 @@ class isVoiceControl:
     def register_routes(self):
         @self.app.route('/')
         def index():
-            return render_template('index.html')
+            return render_template("index.html")
         
         @self.socketio.on('start_recording')
         def start_recording():
@@ -65,6 +70,7 @@ class isVoiceControl:
                                 command_id = self.sp.verify_id(embedding, define_operador=False)
                                 if command_id is not None and command_id == operator_id:
                                     print(command_text)
+                                    self.channel.sent_to(command_text)
                                     
                                     if 'deixar operação' in command_text:
                                         self.recording_active = False  
@@ -94,5 +100,6 @@ class isVoiceControl:
         self.socketio.run(self.app, debug=True)
 
 if __name__ == '__main__':
-    app = isVoiceControl()
+    channel = "amqp://10.20.5.2:30000"
+    app = isVoiceControl(channel)
     app.run()

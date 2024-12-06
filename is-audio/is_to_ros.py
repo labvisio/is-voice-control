@@ -6,5 +6,12 @@ from google.protobuf.struct_pb2 import Struct
 def get_ros_message(msg):
     ros_message = ROSMessage()
     ros_message.type = "std_msgs/String"
-    ros_message = ROSMessage(content=msg)
+    msg_dict = {
+        'data': msg
+    }
+    string_msg = Struct()
+    string_msg.update(msg_dict)
+    ros_message = ROSMessage(content=string_msg)
+    ros_message.type = "std_msgs/String"
+
     return ros_message
