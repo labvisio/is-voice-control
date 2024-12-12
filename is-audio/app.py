@@ -6,11 +6,10 @@ import pyttsx3
 import logging
 import os
 from is_wire.core import Channel
-
 from listener import Speaker_identification
 
 class isVoiceControl:
-    def __init__(self, broker: str):
+    def __init__(self, broker: str, args=None):
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = 'secret!'
         self.socketio = SocketIO(self.app)
@@ -101,5 +100,6 @@ class isVoiceControl:
 
 if __name__ == '__main__':
     channel = "amqp://10.20.5.2:30000"
-    app = isVoiceControl(channel)
+    app = isVoiceControl(channel, None)
     app.run()
+    
