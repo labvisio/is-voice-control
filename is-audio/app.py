@@ -52,6 +52,8 @@ class isVoiceControl:
                                 )
                                 operator_id = self.sp.verify_id(embedding, define_operador=True)
                                 print(f'Operador definido. ID = {operator_id}')
+                                self.channel.sent_to(f'Operador definido. ID = {operator_id}')
+
                                 emit('transcription', {'text': f'Operador definido. ID = {operator_id}'})
                                 self.operator = True
                         except sr.UnknownValueError:
@@ -70,16 +72,16 @@ class isVoiceControl:
                                 if command_id is not None and command_id == operator_id:
                                     print(command_text)
                                     self.channel.sent_to(command_text)
+
                                     
                                     if 'deixar operação' in command_text:
                                         self.recording_active = False  
                                         self.operator = False
                                         print('Deixando operação...')
-                                        emit('feedback', {'message': 'Operação finalizada.'})
-                                        emit('reset_button', {'message': 'Resetando o estado do botão.'})
+                            
                                 else:
+                                    self.channel.sent_to('Operador não autorizado.')
                                     print('Comando não autorizado')
-                                    self.socketio.emit('transcription', {'text': 'Comando não autorizado. Operador não identificado.'})
                         
                             except:
                                 pass

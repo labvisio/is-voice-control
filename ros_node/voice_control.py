@@ -22,15 +22,17 @@ class collectMsg(Node):
 
         self.init_variables()
         self.init_subscribers()
+        self.init_publishers()
 
         self.locations = [
-            (-1.0, -3.0, 0.0),
-            (1.0, -1.0, 1.57),
-            (0.0, 0.0, 0.0),
+            (-2.0, -4.0, 0.0), #porta
+            (1.5, -2.0, 0.0), #servidor
+            (0.0, 0.0, 0.0), #origem
+            (2.0, 2.0, 0.0), #armario
+            (-2.0, 0.0, 0.0) #computador random
         ]
 
     def init_variables(self):
-        """Inicializa as variáveis usadas no controle."""
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0
@@ -40,6 +42,13 @@ class collectMsg(Node):
         self.pose_received = False
         self.k_linear = 1.0  # Ganho para controle linear
         self.k_angular = 6.0  # Ganho para controle angular
+
+    def init_publishers(self):
+        self.publisher_ = self.create_publisher(
+            String,
+            'teste',
+            10
+            )
 
     def init_subscribers(self):
         self.create_subscription(
@@ -53,18 +62,49 @@ class collectMsg(Node):
         if "porta" in msg.data:
             print(msg.data)
             location = self.locations[0]
+            mensagem = String()
+            mensagem.data = msg.data
+            self.publisher_.publish(mensagem)
             logging.info(f"Command sent by operator to {location}")
             self.send_goal(location)
 
         elif "servidor" in msg.data:
             location = self.locations[1]
+            mensagem = String()
+            mensagem.data = msg.data
+            self.publisher_.publish(mensagem)
             logging.info(f"Command sent by operator to {location}")
             self.send_goal(location)
 
         elif "origem" in msg.data:
             location = self.locations[2]
+            mensagem = String()
+            mensagem.data = msg.data
+            self.publisher_.publish(mensagem)
             logging.info(f"Command sent by operator to {location}")
             self.send_goal(location)
+        
+        elif "armario" in msg.data:
+            location = self.locations[3]
+            mensagem = String()
+            mensagem.data = msg.data
+            self.publisher_.publish(mensagem)
+            logging.info(f"Command sent by operator to {location}")
+            self.send_goal(location)
+    
+        elif "computador" in msg.data:
+            location = self.locations[4]
+            mensagem = String()
+            mensagem.data = msg.data
+            self.publisher_.publish(mensagem)
+            logging.info(f"Command sent by operator to {location}")
+            self.send_goal(location)
+        
+        elif "Operador não autorizado." in msg.data:
+            mensagem = String()
+            mensagem.data = msg.data
+            self.publisher_.publish(mensagem)
+        
         else:
             logging.info(f"Command not recognized")
 

@@ -15,3 +15,4 @@ class VoiceControl:
         print(message)
         print(self._channel)
         self._channel.publish(message, topic="ros.voice_msg")
+ 
